@@ -26,7 +26,7 @@ const agregar = async (req, res) => {
 
 
 // Consultar todos los estudiantes
-const consultar = async (req, res) => {
+const consultarTodos = async (req, res) => {
     try {
         const response = await pool.query("SELECT * FROM estudiantes");
         console.log(response.rows);
@@ -38,7 +38,26 @@ const consultar = async (req, res) => {
 
 
 
-// Actualizar usuarios
+// Consultar estudiante por Rut
+const consultarPorRut = async (rut) => {
+    const selectQuery = "SELECT * FROM estudiantes WHERE rut = $1";
+    const selectValues = [rut];
+    try {
+        const response = await pool.query(selectQuery, selectValues);
+        if (response.rowCount === 0) {
+            console.log("No se encontró el estudiante con ese rut");
+        } else {
+            console.log(response.rows);
+        }
+    } catch (error) {
+        console.log(error.message);
+    }
+};
+
+
+
+
+// Actualizar usuarios por ID
 const actualizar = async (nombre, rut, curso, nivel, id) => {
     const updateQuery = "UPDATE estudiantes SET nombre = $1, rut = $2, curso = $3, nivel = $4 WHERE id = $5";
     const updateValues = [nombre, rut, curso, nivel, id];
@@ -57,7 +76,7 @@ const actualizar = async (nombre, rut, curso, nivel, id) => {
 
 
 
-// Eliminar un estudiante
+// Borrar un estudiante por ID
 const eliminarPorId = async (id) => {
     const deleteQuery = "DELETE FROM estudiantes WHERE id = $1";
     const deleteValues = [id];
@@ -76,32 +95,16 @@ const eliminarPorId = async (id) => {
 
 
 
-// Borrar estudiante por rut
-const eliminarPotRut = async (rut) => {
-    const deleteQuery = "DELETE FROM estudiantes WHERE rut = $1";
-    const deleteValues = [rut];
-    try {
-        const response = await pool.query(deleteQuery, deleteValues);
-        if (response.rowCount === 0) {
-            console.log("No se encontró el estudiante con ese rut");
-        } else {
-            console.log("Estudiante eliminado correctamente");
-        }
-    } catch (error) {
-        console.log(error.message);
-    }
-};
-
-
-
-
 // Switch para elegir la opción
 switch (opcion) {
     case "agregar":
         agregar();
         break;
-    case "consultar":
-        consultar();
+    case "consultarTodos":
+        consultarTodos();
+        break;
+    case "consultarPorRut":
+        consultarPorRut(argumentos[1]);
         break;
     case "actualizarPorId":
         actualizar(argumentos[1], argumentos[2], argumentos[3], argumentos[4], argumentos[5]);
@@ -109,11 +112,8 @@ switch (opcion) {
     case "eliminarPorId":
         eliminarPorId(argumentos[1]);
         break;
-    case "eliminarPorRut":
-        eliminarPotRut(argumentos[1]);
-        break;
     default:
-        console.log("Opción no válida");
+        console.log("Opción ingresada no válida");
         break;
 }
 
